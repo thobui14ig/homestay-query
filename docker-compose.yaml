@@ -1,0 +1,22 @@
+version: '3'
+services:
+  fb-query:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fb-query
+    restart: always
+    # depends_on:
+    #   - db
+    environment:
+      - PORT=9000
+      - DB_TYPE=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER_NAME=root
+      - DB_PASSWORD=111111
+      - DB_DATABASE=fb-sync
+      - NODE_OPTIONS=--max-old-space-size=4096
+      - ENV=production
+    ports:
+      - '9000:9000'
