@@ -19,4 +19,4 @@ services:
       - NODE_OPTIONS=--max-old-space-size=4096
       - ENV=production
     ports:
-      - '2000:9000'
+      - '2000:2000'
