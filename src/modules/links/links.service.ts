@@ -3,13 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
-import { isNullOrUndefined } from 'src/common/utils/check-utils';
-import { DataSource, ILike, In, MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { DelayEntity } from '../setting/entities/delay.entity';
+import { DataSource, In, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { LEVEL } from '../user/entities/user.entity';
 import { UpdateLinkDTO } from './dto/update-link.dto';
 import { HideBy, LinkEntity, LinkStatus, LinkType } from './entities/links.entity';
-import { BodyLinkQuery, CreateLinkParams, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
+import { CreateLinkParams, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -21,13 +19,10 @@ export class LinkService {
   constructor(
     @InjectRepository(LinkEntity)
     private repo: Repository<LinkEntity>,
-    @InjectRepository(DelayEntity)
-    private delayRepository: Repository<DelayEntity>,
     private connection: DataSource,
   ) { }
 
   async create(params: CreateLinkParams) {
-    const config = await this.delayRepository.find();
     const linkEntities: Partial<LinkEntity>[] = []
     const linksInValid = [];
 
@@ -43,7 +38,7 @@ export class LinkService {
         const entity: Partial<LinkEntity> = {
           userId: params.userId,
           linkUrl: link.url,
-          delayTime: params.status === LinkStatus.Started ? config[0].delayOnPublic ?? 10 : config[0].delayOff ?? 10,
+          delayTime: 5,
           status: params.status,
           linkName: link.name,
           hideCmt: params.hideCmt,
@@ -96,7 +91,7 @@ export class LinkService {
   }) {
     let queryEntends = ''
     if (level === LEVEL.USER) {
-      queryEntends += ` WHERE l.user_id = ${userIdByUerLogin}`
+      queryEntends += ` AND l.user_id = ${userIdByUerLogin}`
     }
     const { limit, offset } = body
     const query = `
@@ -110,6 +105,7 @@ export class LinkService {
               l.type,
                DATE_FORMAT(CONVERT_TZ(l.created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s') AS createdAt
           FROM links l
+          WHERE l.is_deleted = FALSE 
            ${queryEntends}
       )
       SELECT *, (SELECT COUNT(*) FROM filtered_links) AS totalCount

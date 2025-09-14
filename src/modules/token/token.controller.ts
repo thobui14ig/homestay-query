@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TokenService } from './token.service';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CreateTokenDto } from './dto/create-token.dto';
-import { UpdateTokenDto } from './dto/update-token.dto';
+import { TokenService } from './token.service';
 
 @Controller('tokens')
 export class TokenController {
@@ -20,11 +19,6 @@ export class TokenController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.tokenService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTokenDto: UpdateTokenDto) {
-    return this.tokenService.update(+id, updateTokenDto);
   }
 
   @Delete(':id')
