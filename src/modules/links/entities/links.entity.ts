@@ -56,10 +56,10 @@ export class LinkEntity {
   @Column({ length: 255, nullable: true, name: 'page_id' })
   pageId: string | null;
 
-  @Column({ nullable: true, name: 'last_comment_time' })
+  @Column({ type: 'datetime', nullable: true, name: 'last_comment_time' })
   lastCommentTime: Date | null;
 
-  @Column({ nullable: true, name: 'time_craw_update' })
+  @Column({ type: 'datetime', nullable: true, name: 'time_craw_update' })
   timeCrawUpdate: Date | null;
 
   @Column({ type: 'int', default: 0, name: 'comment_count' })
@@ -110,7 +110,11 @@ export class LinkEntity {
   @Column({ name: 'table_page_id' })
   tablePageId: number;
 
+  @Column({ default: false, name: 'is_deleted' })
+  isDelete: Boolean;
+
   @CreateDateColumn({
+    type: 'datetime',
     name: 'created_at',
   })
   createdAt: Date;

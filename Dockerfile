@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install app dependencies
-RUN npm install --legacy-peer-deps --include=dev
+RUN npm install
 
 # Bundle app source
 COPY . .

@@ -9,14 +9,14 @@ services:
     # depends_on:
     #   - db
     environment:
-      - PORT=9000
-      - DB_TYPE=postgres
-      - DB_HOST=103.67.196.23
-      - DB_PORT=5432
+      - PORT=2000
+      - DB_TYPE=mysql
+      - DB_HOST=46.62.205.241
+      - DB_PORT=3306
       - DB_USER_NAME=root
-      - DB_PASSWORD=111111
-      - DB_DATABASE=fb-sync
+      - DB_PASSWORD=MyRootPass123!
+      - DB_DATABASE=crawl-fb
       - NODE_OPTIONS=--max-old-space-size=4096
       - ENV=production
     ports:
-      - '9000:9000'
+      - '2000:9000'

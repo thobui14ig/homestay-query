@@ -4,12 +4,12 @@ import * as dayjs from 'dayjs';
 import * as timezone from 'dayjs/plugin/timezone';
 import * as utc from 'dayjs/plugin/utc';
 import { isNullOrUndefined } from 'src/common/utils/check-utils';
-import { DataSource, In, MoreThanOrEqual, Not, Repository } from 'typeorm';
+import { DataSource, ILike, In, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { DelayEntity } from '../setting/entities/delay.entity';
 import { LEVEL } from '../user/entities/user.entity';
 import { UpdateLinkDTO } from './dto/update-link.dto';
 import { HideBy, LinkEntity, LinkStatus, LinkType } from './entities/links.entity';
-import { BodyLinkQuery, CreateLinkParams, ISettingLinkDto } from './links.service.i';
+import { BodyLinkQuery, CreateLinkParams, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -90,152 +90,52 @@ export class LinkService {
     });
   }
 
-  async getAll(status: LinkStatus, body: BodyLinkQuery, level: LEVEL, userIdByUerLogin: number, isFilter: boolean, hideCmt: boolean, limit: number, offset: number) {
-    const { type, userId, delayFrom, delayTo, differenceCountCmtFrom, differenceCountCmtTo, lastCommentFrom, lastCommentTo, likeFrom, likeTo, diffTimeFrom, diffTimeTo, totalCmtTodayFrom, totalCmtTodayTo } = body
-    let queryEntends = ``
-    if (hideCmt) {
-      queryEntends += ` l.hide_cmt = true`
-    } else {
-      queryEntends += ` l.hide_cmt = false`
-    }
-    if (status === LinkStatus.Started) {
-      queryEntends += ` AND l.status = 'started'`
-    }
-    if (status === LinkStatus.Pending) {
-      queryEntends += ` AND l.status = 'pending'`
-    }
-
-    if (differenceCountCmtFrom && differenceCountCmtTo) {
-      queryEntends += ` AND l.count_after between ${differenceCountCmtFrom} and ${differenceCountCmtTo}`
-    }
-
-    if (likeFrom && likeTo) {
-      queryEntends += ` AND l.like_after between ${likeFrom} and ${likeTo}`
-    }
-
-    if (isFilter) {
-      if (level === LEVEL.ADMIN) {
-        if (type) {
-          queryEntends += ` AND l.type='${type}'`
-        }
-        if (userId) {
-          queryEntends += ` AND l.user_id=${userId}`
-        }
-        if (delayFrom && delayTo) {
-          queryEntends += ` AND l.delay_time between ${delayFrom} and ${delayTo}`
-        }
-      }
-    }
+  async getAll(level: LEVEL, userIdByUerLogin: number, body: {
+    limit: number
+    offset: number
+  }) {
+    let queryEntends = ''
     if (level === LEVEL.USER) {
-      queryEntends += ` AND l.user_id = ${userIdByUerLogin}`
+      queryEntends += ` WHERE l.user_id = ${userIdByUerLogin}`
     }
-
+    const { limit, offset } = body
     const query = `
       WITH filtered_links AS (
           SELECT
               l.id,
-              l.error_message AS errorMessage,
               l.link_name AS linkName,
               l.link_url AS linkUrl,
-              l.like,
-              l.post_id AS postId,
-              l.delay_time AS delayTime,
+              l.content,
               l.status,
-              DATE_FORMAT(CONVERT_TZ(l.created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s') AS createdAt,
-              CASE
-                  WHEN l.last_comment_time IS NOT NULL
-                      THEN TIMESTAMPDIFF(HOUR, l.last_comment_time, UTC_TIMESTAMP())
-                  ELSE 9999
-              END AS lastCommentTime,
-              u.username,
-              l.count_before AS countBefore,
-              l.count_after AS countAfter,
-              l.like_before AS likeBefore,
-              l.like_after AS likeAfter,
-              l.hide_cmt AS hideCmt,
-              l.hide_by AS hideBy,
               l.type,
-              CASE
-                  WHEN l.time_craw_update IS NOT NULL
-                      THEN TIMESTAMPDIFF(HOUR, l.time_craw_update, l.last_comment_time)
-                  ELSE 9999
-              END AS timeCrawUpdate,
-              l.comment_count AS totalComment,
-              l.priority,
-              IFNULL(c1.totalCommentNewest, 0) AS totalCommentNewest,
-              IFNULL(c2.totalCommentToday, 0) AS totalCommentToday,
-              (l.count_after - (IFNULL(c1.totalCommentNewest, 0) - l.comment_count)) AS diffTimeCondition
+               DATE_FORMAT(CONVERT_TZ(l.created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s') AS createdAt
           FROM links l
-          JOIN users u ON u.id = l.user_id
-          LEFT JOIN (
-              SELECT link_id, COUNT(*) AS totalCommentNewest
-              FROM comments
-              GROUP BY link_id
-          ) c1 ON c1.link_id = l.id
-          LEFT JOIN (
-              SELECT link_id, COUNT(*) AS totalCommentToday
-              FROM comments
-              WHERE time_created BETWEEN
-                  UTC_TIMESTAMP() - INTERVAL (HOUR(UTC_TIMESTAMP())+MINUTE(UTC_TIMESTAMP())/60+SECOND(UTC_TIMESTAMP())/3600) HOUR
-                  AND UTC_TIMESTAMP()
-              GROUP BY link_id
-          ) c2 ON c2.link_id = l.id
-          WHERE ${queryEntends}
-            /* Filter lastCommentTime */
-            ${(!isNullOrUndefined(lastCommentFrom) && !isNullOrUndefined(lastCommentTo))
-        ? `AND (CASE WHEN l.last_comment_time IS NOT NULL 
-                          THEN TIMESTAMPDIFF(HOUR, l.last_comment_time, UTC_TIMESTAMP()) 
-                          ELSE 9999 END) BETWEEN ${lastCommentFrom} AND ${lastCommentTo}`
-        : ''}
-            /* Filter totalCommentToday */
-            ${(!isNullOrUndefined(totalCmtTodayFrom) && !isNullOrUndefined(totalCmtTodayTo))
-        ? `AND IFNULL(c2.totalCommentToday, 0) BETWEEN ${totalCmtTodayFrom} AND ${totalCmtTodayTo}`
-        : ''}
-            /* Filter diffTimeCondition */
-            ${(!isNullOrUndefined(diffTimeFrom) && !isNullOrUndefined(diffTimeTo))
-        ? `AND (l.count_after - (IFNULL(c1.totalCommentNewest, 0) - l.comment_count)) 
-                  BETWEEN ${diffTimeFrom} AND ${diffTimeTo}`
-        : ''}
+           ${queryEntends}
       )
       SELECT *, (SELECT COUNT(*) FROM filtered_links) AS totalCount
       FROM filtered_links
       ORDER BY createdAt DESC
-      LIMIT ${limit} OFFSET ${offset};
-
-      `
-    let response: any[] = await this.connection.query(query, [])
+      LIMIT ${limit} OFFSET ${offset};  
+    `
+    const response = await this.connection.query(query)
 
     return {
       data: response,
-      totalCount: response.length > 0 ? response[0].totalCount : 0
+      totalCount: response.length > 0 ? response[0].totalCount : 0,
     }
   }
 
   update(params: UpdateLinkDTO, level: LEVEL) {
-    const argUpdate: Partial<LinkEntity> = {};
-    argUpdate.id = params.id;
-    argUpdate.linkName = params.linkName;
-    argUpdate.hideCmt = params.hideCmt;
-
-    if (level === LEVEL.ADMIN) {
-      argUpdate.delayTime = params.delayTime;
-      argUpdate.type = params.type;
-      argUpdate.thread = params.thread
-    }
-
-    if (params.hideCmt && params.tablePageId) {
-      argUpdate.tablePageId = params.tablePageId
-    }
 
     return this.connection.transaction(async (manager) => {
       const record = await manager
         .getRepository(LinkEntity)
         .createQueryBuilder("e")
         .setLock("pessimistic_write")
-        .where("e.id = :id", { id: argUpdate.id })
+        .where("e.id = :id", { id: params.id })
         .getOneOrFail();
 
-      Object.assign(record, argUpdate);
+      Object.assign(record, params);
 
       await manager.save(record);
     });
@@ -243,7 +143,7 @@ export class LinkService {
 
   delete(id: number) {
     //chưa xử lý stop_monitoring
-    return this.repo.delete(id);
+    return this.repo.update(id, { isDelete: true });
   }
 
   async hideCmt(linkId: number, type: HideBy, userId: number) {
@@ -273,7 +173,8 @@ export class LinkService {
 
   async settingLink(setting: ISettingLinkDto) {
     if (setting.isDelete) {
-      return this.repo.delete(setting.linkIds)
+      // return this.repo.delete(setting.linkIds)
+      await this.repo.update(setting.linkIds, { isDelete: true })
     }
 
     const links = await this.repo.find({
@@ -331,8 +232,8 @@ export class LinkService {
   async getTotalLinkUser(userId: number) {
     const response = await this.connection.query(`
         SELECT
-          (SELECT COUNT(*) FROM links l WHERE l.user_id = u.id AND l.status = 'started') AS totalLinkOn,
-          (SELECT COUNT(*) FROM links l WHERE l.user_id = u.id AND l.status = 'pending') AS totalLinkOff
+          (SELECT COUNT(*) FROM links l WHERE l.user_id = u.id AND l.status = 'started' AND l.is_deleted = FALSE) AS totalLinkOn,
+          (SELECT COUNT(*) FROM links l WHERE l.user_id = u.id AND l.status = 'pending' AND l.is_deleted = FALSE) AS totalLinkOff
           FROM users u
           WHERE u.id = ${userId};
       `)
@@ -346,7 +247,8 @@ export class LinkService {
         type: Not(LinkType.DIE),
         delayTime: MoreThanOrEqual(0),
         hideCmt: false,
-        priority: false
+        priority: false,
+        isDelete: false
       },
       relations: {
         user: true
@@ -356,5 +258,41 @@ export class LinkService {
 
   priority(body: { priority: boolean, linkId: number }) {
     return this.repo.save({ id: body.linkId, priority: body.priority })
+  }
+
+  async getLinksDeleted(query: IGetLinkDeleted) {
+    const { keyword, limit, offset, userId } = query
+    let condition = ``
+    if (userId) {
+      condition += ` AND u.id = ${userId} `
+    }
+    if (keyword) {
+      condition += ` AND(u.username REGEXP '${keyword}'
+                    OR l.link_name REGEXP '${keyword}'
+                    OR l.link_url REGEXP '${keyword}')
+      `
+    }
+    const response = await this.connection.query(`
+      select 
+          l.id,
+          l.link_name AS linkName,
+          l.link_url AS linkUrl,
+          u.username,
+          COUNT(*) OVER() AS totalCount
+      from links l 
+      JOIN users u ON u.id = l.user_id
+      where l.is_deleted = true ${condition}
+      LIMIT ${limit} OFFSET ${offset};
+    `)
+    return {
+      data: response,
+      totalCount: response.length > 0 ? response[0].totalCount : 0
+    }
+  }
+
+  updateLinkDelete(body: { status: LinkStatus, linkIds: number[] }) {
+    const { linkIds, status } = body
+
+    return this.repo.update(linkIds, { status, isDelete: false })
   }
 }
