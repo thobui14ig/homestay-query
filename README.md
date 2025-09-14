@@ -95,12 +95,22 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-```
-CREATE INDEX idx_links_status_hide ON links(status, hide_cmt, created_at);
-CREATE INDEX idx_comments_linkid_time ON comments(link_id, time_created);
-CREATE DATABASE `crawl-fb` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'root'@'%' IDENTIFIED BY 'HoangChuong@0509';
-GRANT ALL PRIVILEGES ON `crawl-fb`.* TO 'root'@'%';
+
+
+CREATE DATABASE `homstay` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Tạo user (nếu bạn muốn dùng root thì bỏ qua bước này, nhưng nên tạo user riêng)
+CREATE USER 'root'@'%' IDENTIFIED BY 'Thanhtho96@1111';
+
+-- Cấp quyền full cho user
+GRANT ALL PRIVILEGES ON `homstay`.* TO 'root'@'%';
+
+-- Áp dụng thay đổi
 FLUSH PRIVILEGES;
-```
+
+sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo systemctl restart mysql
+
+
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'Thanhtho96@1111';
+FLUSH PRIVILEGES;
