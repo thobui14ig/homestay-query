@@ -28,7 +28,7 @@ export class CommentsService {
     const vnNowEnd = dayjs(params.endDate).tz(this.vnTimezone)
     const startDate = vnNowStart.startOf('day').utc().format('YYYY-MM-DD HH:mm:ss');
     const endDate = vnNowEnd.endOf('day').utc().format('YYYY-MM-DD HH:mm:ss');
-    const keyword = params.keyword.length > 0 ? params.keyword.trim() : null
+    const keyword = params?.keyword?.length > 0 ? params.keyword.trim() : null
 
     let response = []
     const limit = params.limit
