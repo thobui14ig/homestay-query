@@ -24,6 +24,11 @@ export enum LinkType {
   PRIVATE = 'private',
 }
 
+export enum CrawType {
+  FACEBOOK = 'facebook',
+  TIKTOK = 'tiktok'
+}
+
 export enum HideBy {
   ALL = 'all',
   PHONE = 'phone',
@@ -112,6 +117,9 @@ export class LinkEntity {
 
   @Column({ default: false, name: 'is_deleted' })
   isDelete: Boolean;
+
+  @Column({ name: 'craw_type' })
+  crawType: CrawType;
 
   @CreateDateColumn({
     type: 'datetime',

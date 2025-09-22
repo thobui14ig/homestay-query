@@ -47,6 +47,7 @@ CREATE TABLE links (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_deleted TINYINT(1) DEFAULT false,
     table_page_id INT NULL,
+    craw_type ENUM('facebook','tiktok') NOT NULL DEFAULT 'facebook', 
     CONSTRAINT fk_links_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -145,3 +146,9 @@ CREATE TABLE cmt_wait_process (
     link_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE `groups` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` TEXT NOT NULL,
+    `group_id` VARCHAR(255) UNIQUE NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

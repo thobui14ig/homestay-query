@@ -11,7 +11,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { LinkStatus } from '../entities/links.entity';
+import { CrawType, LinkStatus } from '../entities/links.entity';
 import { Optional } from '@nestjs/common';
 import { Type } from 'class-transformer';
 
@@ -51,4 +51,7 @@ export class CreateLinkDTO {
   @IsOptional()
   @IsNumber()
   tablePageId: number
+
+  @IsOptional()
+  crawType: CrawType
 }

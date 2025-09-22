@@ -14,7 +14,7 @@ import { Request } from 'express';
 import { getUser } from 'src/common/utils/user';
 import { CreateLinkDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
-import { HideBy, LinkStatus, LinkType } from './entities/links.entity';
+import { CrawType, HideBy, LinkStatus, LinkType } from './entities/links.entity';
 import { LinkService } from './links.service';
 import { BodyLinkQuery, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
 import { CheckLimitLinkUserWhenAddLinkInterceptor } from './interceptors/handle-check-limit-link-user-when-add-link.interceptor';
@@ -48,7 +48,8 @@ export class LinkController {
   @Post('/query')
   getLinks(@Req() req: Request, @Body() body: {
     limit: number
-    offset: number
+    offset: number,
+    crawType: CrawType
   }) {
     const user = getUser(req);
 

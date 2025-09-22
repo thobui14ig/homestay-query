@@ -6,7 +6,7 @@ import * as utc from 'dayjs/plugin/utc';
 import { DataSource, In, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { LEVEL } from '../user/entities/user.entity';
 import { UpdateLinkDTO } from './dto/update-link.dto';
-import { HideBy, LinkEntity, LinkStatus, LinkType } from './entities/links.entity';
+import { CrawType, HideBy, LinkEntity, LinkStatus, LinkType } from './entities/links.entity';
 import { CreateLinkParams, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
 
 dayjs.extend(utc);
@@ -43,6 +43,7 @@ export class LinkService {
           linkName: link.name,
           hideCmt: params.hideCmt,
           thread: params.thread,
+          crawType: params.crawType
         }
         if (params.hideCmt) {
           entity.tablePageId = params.tablePageId
@@ -88,12 +89,13 @@ export class LinkService {
   async getAll(level: LEVEL, userIdByUerLogin: number, body: {
     limit: number
     offset: number
+    crawType: CrawType
   }) {
     let queryEntends = ''
     if (level === LEVEL.USER) {
       queryEntends += ` AND l.user_id = ${userIdByUerLogin}`
     }
-    const { limit, offset } = body
+    const { limit, offset, crawType } = body
     const query = `
       WITH filtered_links AS (
           SELECT
@@ -105,7 +107,7 @@ export class LinkService {
               l.type,
                DATE_FORMAT(CONVERT_TZ(l.created_at, '+00:00', '+07:00'), '%Y-%m-%d %H:%i:%s') AS createdAt
           FROM links l
-          WHERE l.is_deleted = FALSE 
+          WHERE l.is_deleted = FALSE AND l.craw_type = '${crawType}'
            ${queryEntends}
       )
       SELECT *, (SELECT COUNT(*) FROM filtered_links) AS totalCount
