@@ -10,6 +10,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentEntity } from './entities/comment.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { CrawType } from '../links/entities/links.entity';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -35,6 +36,7 @@ export class CommentsService {
     const offset = params.offset
 
     const condition = user.level as LEVEL === LEVEL.ADMIN ? `` : `c.user_id = ${user.id} AND `
+    const crawType = params.crawType === CrawType.FACEBOOK ? " AND craw_type = 'facebook'" : "AND craw_type = 'tiktok'"
     const query = `
       SELECT 
           c.id,
@@ -77,6 +79,7 @@ export class CommentsService {
             OR c.name REGEXP '${keyword}'
             OR c.phone_number REGEXP '${keyword}'
           )` : ""}
+          ${crawType}
       ORDER BY c.time_created DESC
       LIMIT ${limit} OFFSET ${offset};
     `
