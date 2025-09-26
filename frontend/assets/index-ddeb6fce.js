@@ -1,0 +1,1 @@
+import{j as r,K as o}from"./index-d271889a.js";import{L as t}from"./Link-c2d0c687.js";import{C as i}from"./Pagination-299f5dca.js";import"./index.esm-f5eea95b.js";import"./motion-69b97a49.js";import"./toast-6dc96022.js";import"./index-6467ff8c.js";function f(){return r.jsx(o,{children:r.jsx(t,{crawType:i.FACEBOOK})})}export{f as default};

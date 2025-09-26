@@ -10,26 +10,20 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-interface IClientSocketUser {
-    phone: string;
-    socketId: string
-}
-
-interface IPayloadMessage {
-    commentId: any;
-    userNameComment: any;
-    commentMessage: any;
-    phoneNumber: string;
-    userIdComment: any;
-    commentCreatedAt: string;
-    linkId: number
+export interface IPayloadMessage {
+  actorId: string;      
+  actorName: string;
+  postId: string;
+  content: string;
+  createdAt: string;   
+  groupId?: string;
 }
 
 @WebSocketGateway({
     cors: true,
 })
 export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-    posts: any[] = []
+    posts: IPayloadMessage[] = []
 
     constructor() { }
     @WebSocketServer() server: Server;
@@ -46,26 +40,33 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         console.log('Ngat ket noi!.', client.id);
     }
 
-    @SubscribeMessage('joinLink')
-    handleJoin(@MessageBody() linkId: number, @ConnectedSocket() client: Socket) {
-        console.log(`link-${linkId}`)
-        client.join(`link-${linkId}`);
+    @SubscribeMessage('join-room-comment-group')
+    handleJoin(@ConnectedSocket() client: Socket) {
+        console.log(`join room-comment-group`)
+        client.join(`room-comment-group`);
     }
 
-    @SubscribeMessage('leaveLink')
-    handleLeave(@MessageBody() linkId: number, @ConnectedSocket() client: Socket) {
-        client.leave(`link-${linkId}`);
+    @SubscribeMessage('leave-room-comment-group')
+    handleLeave(@ConnectedSocket() client: Socket) {
+        console.log(`leave room-comment-group`)
+        client.leave(`room-comment-group`);
     }
 
-    sendResponse(linkId: number, response: any) {
-        this.server.to(`link-${linkId}`).emit('linkResponse', response);
-    }
-
-    @SubscribeMessage('receiveMessage')
+    @SubscribeMessage('comment-group')
     handleReloadListMessage(
         client: Socket,
         payload: IPayloadMessage,
     ) {
-        this.server.to(`link-${payload.linkId}`).emit('linkResponse', payload);
+        const isExist = this.posts.find(item => item.postId == payload.postId && item.createdAt == payload.createdAt)
+        if(isExist) {
+            return 
+        }
+        this.server.to(`room-comment-group`).emit('comment-group', payload);
+        if(this.posts.length == 30) {
+            this.posts.pop()
+        }
+        this.posts.unshift(payload)
+
+        console.log(payload)
     }
 }
