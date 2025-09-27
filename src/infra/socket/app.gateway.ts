@@ -112,6 +112,6 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         this.commentsTiktok.unshift(payload)
         // console.log(this.commentsTiktok)
 
-        // console.log(payload)
+        console.log(payload)
     }
 }
