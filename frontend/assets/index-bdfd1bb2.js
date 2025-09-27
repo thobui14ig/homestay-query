@@ -1,1 +1,0 @@
-import{j as r,K as o}from"./index-f30d1f44.js";import{L as t}from"./Link-6ab253cb.js";import{C as i}from"./Pagination-5fb51b02.js";import"./index.esm-d83f3f22.js";import"./motion-8394b150.js";import"./toast-72b08245.js";import"./index-21a586e3.js";function f(){return r.jsx(o,{children:r.jsx(t,{crawType:i.TIKTOK})})}export{f as default};
