@@ -18,6 +18,8 @@ services:
       - DB_DATABASE=homstay
       - NODE_OPTIONS=--max-old-space-size=4096
       - ENV=production
+      - IP_SOCKET=103.67.196.23
+      - PORT_SOCKET=2000
     ports:
       - '2000:2000'
   redis:
