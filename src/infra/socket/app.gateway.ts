@@ -66,7 +66,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
     @SubscribeMessage('join-room-comment-tiktok')
     handleJoinRoomTiktok(@MessageBody() payload: { userId: number }, @ConnectedSocket() client: Socket) {
-        console.log(`join room-comment-tiktok`)
+        console.log(`join room-comment-tiktok`, payload.userId)
         client.join(`room-comment-tiktok-${payload.userId}`);
     }
 
