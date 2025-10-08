@@ -124,13 +124,7 @@ export class CommentsService {
     return this.repo.find({
       where: {
         userId,
-        link: {
-          crawType: CrawType.TIKTOK
-        }
       },
-      relations: {
-        link: true
-      }
     })
   }
 }
