@@ -100,18 +100,18 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         payload: IPayloadMessageTiktok,
     ) {
         console.log(payload)
-        const isExist = this.commentsTiktok.find(item => item.postId == payload.postId && item.commentCreatedAt == payload.commentCreatedAt)
-        if(isExist) {
-            return 
-        }
+        // const isExist = this.commentsTiktok.find(item => item.postId == payload.postId && item.commentCreatedAt == payload.commentCreatedAt)
+        // if(isExist) {
+        //     return 
+        // }
         this.server.to(`room-comment-tiktok-${payload.userId}`).emit('comment-tiktok', payload);
 
-        if(this.commentsTiktok.length == 50) {
-            this.commentsTiktok.pop()
-        }
-        this.commentsTiktok.unshift(payload)
-        // console.log(this.commentsTiktok)
+        // if(this.commentsTiktok.length == 50) {
+        //     this.commentsTiktok.pop()
+        // }
+        // this.commentsTiktok.unshift(payload)
+        // // console.log(this.commentsTiktok)
 
-        console.log(payload)
+        // console.log(payload)
     }
 }

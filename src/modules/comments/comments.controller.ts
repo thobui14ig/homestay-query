@@ -10,6 +10,13 @@ import { CommentEntity } from './entities/comment.entity';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) { }
 
+  @Get('/comments-tiktok')
+  getCommentTiktok(@Req() req: Request,) {
+    const user = getUser(req);
+
+    return this.commentsService.getCommentTiktok(user.id);
+  }
+
   @Post()
   findAll(@Req() req: Request, @Query('hide') hideCmt: number, @Body() body: IGetCommentParams) {
     const user = getUser(req);

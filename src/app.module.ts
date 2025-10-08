@@ -52,6 +52,7 @@ import { GatewayModules } from './infra/socket/gateway.modules';
         username: configService.get<string>('DB_USER_NAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
+        timezone: "Z",
         entities: [
           UserEntity,
           LinkEntity,

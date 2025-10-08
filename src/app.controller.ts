@@ -10,8 +10,4 @@ export class AppController {
     return this.appService.getCommentGroup();
   }
 
-  @Get('comments-tiktok')
-  getCommentTiktok() {
-    return this.appService.getCommentTiktok();
-  }
 }

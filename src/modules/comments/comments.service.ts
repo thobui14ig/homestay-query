@@ -119,4 +119,18 @@ export class CommentsService {
     await lastValueFrom(this.httpService.post("http://160.25.232.64:7000/facebook/hide-cmt", comment))
     return true
   }
+
+  getCommentTiktok(userId: number) {
+    return this.repo.find({
+      where: {
+        userId,
+        link: {
+          crawType: CrawType.TIKTOK
+        }
+      },
+      relations: {
+        link: true
+      }
+    })
+  }
 }

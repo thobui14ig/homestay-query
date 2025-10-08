@@ -8,8 +8,4 @@ export class AppService {
   getCommentGroup() {
     return this.socketService.posts
   }
-
-  getCommentTiktok() {
-    return this.socketService.commentsTiktok
-  }
 }
