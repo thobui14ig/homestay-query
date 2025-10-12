@@ -17,6 +17,11 @@ export class CommentsController {
     return this.commentsService.getCommentTiktok(user.id);
   }
 
+  @Get('comments-group')
+  getCommentGroup() {
+    return this.commentsService.getCommentGroup();
+  }
+
   @Post()
   findAll(@Req() req: Request, @Query('hide') hideCmt: number, @Body() body: IGetCommentParams) {
     const user = getUser(req);

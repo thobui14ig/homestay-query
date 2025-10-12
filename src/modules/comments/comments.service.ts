@@ -11,6 +11,7 @@ import { CommentEntity } from './entities/comment.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { CrawType } from '../links/entities/links.entity';
+import { AppGateway } from 'src/infra/socket/app.gateway';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -23,6 +24,7 @@ export class CommentsService {
     private repo: Repository<CommentEntity>,
     private readonly httpService: HttpService,
     private readonly connection: DataSource,
+    private socketService: AppGateway
   ) { }
   async findAll(user: UserEntity, hideCmt: boolean, params: IGetCommentParams) {
     const vnNowStart = dayjs(params.startDate).tz(this.vnTimezone)
@@ -126,5 +128,9 @@ export class CommentsService {
         userId,
       },
     })
+  }
+
+  getCommentGroup() {
+    return this.socketService.posts
   }
 }

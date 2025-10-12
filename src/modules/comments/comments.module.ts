@@ -6,9 +6,10 @@ import { CommentEntity } from './entities/comment.entity';
 import { CookieEntity } from '../cookie/entities/cookie.entity';
 import { FacebookModule } from '../facebook/facebook.module';
 import { HttpModule } from '@nestjs/axios';
+import { GatewayModules } from 'src/infra/socket/gateway.modules';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CommentEntity]), FacebookModule, HttpModule],
+  imports: [TypeOrmModule.forFeature([CommentEntity]), FacebookModule, HttpModule, GatewayModules],
   controllers: [CommentsController],
   providers: [CommentsService],
 })
