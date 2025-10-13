@@ -134,9 +134,6 @@ export class LinkEntity {
   @OneToMany(() => CommentEntity, (comment) => comment.link)
   comments: CommentEntity[];
 
-  @OneToMany(() => KeywordEntity, (keyword) => keyword.link)
-  keywords: KeywordEntity[];
-
   @ManyToOne(() => PageEntity, (user) => user.links)
   @JoinColumn({ name: 'table_page_id' })
   page: PageEntity;

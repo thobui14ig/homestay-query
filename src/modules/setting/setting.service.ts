@@ -33,8 +33,6 @@ export class SettingService {
 
   async createKeyword(params: CreateKeywordDto, userId: number) {
     return await this.dataSource.transaction(async (manager) => {
-      await manager.delete(KeywordEntity, { userId });
-
       const delayEntities: Partial<KeywordEntity>[] = params.keywords.map((keyword) => ({
         keyword,
         userId,
@@ -53,12 +51,8 @@ export class SettingService {
     return this.delayRepository.save(currentDelayEntity)
   }
 
-  getKeywords(userId: number) {
-    return this.keywordRepository.find({
-      where: {
-        userId
-      }
-    })
+  getKeywords() {
+    return this.keywordRepository.find()
   }
 
   async getDelay() {

@@ -162,9 +162,6 @@ export class LinkService {
     return this.repo.findOne({
       where: {
         id: linkId
-      },
-      relations: {
-        keywords: true
       }
     })
   }

@@ -33,9 +33,8 @@ export class SettingController {
   }
 
   @Get('get-keywords')
-  getKeywords(@Req() req: Request) {
-    const user = getUser(req);
-    return this.settingService.getKeywords(user.id);
+  getKeywords() {
+    return this.settingService.getKeywords();
   }
 
   @Get('get-delay')

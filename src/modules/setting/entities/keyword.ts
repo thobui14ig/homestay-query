@@ -24,8 +24,4 @@ export class KeywordEntity {
 
     @Column({ name: 'link_id', type: 'int' })
     linkId: number;
-
-    @ManyToOne(() => LinkEntity, (link) => link.comments)
-    @JoinColumn({ name: 'link_id' })
-    link: LinkEntity
 }
