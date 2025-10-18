@@ -90,13 +90,14 @@ export class AuthService {
         return res.status(402).json({ refresh: false });
       }
 
-      const payload = { ...decodedToken };
+      const { iat, exp, ...payload } = decodedToken
       const { accessToken, refreshToken } = await this.createToken(payload);
 
       res.setHeader('Set-Cookie', [`token=${accessToken}; HttpOnly; Path=/`]);
 
       return res.send({ refreshToken });
     } catch (error) {
+      console.log(error)
       return res.status(402).json({ message: 'Refresh token đã hết hạn' });
     }
   }
