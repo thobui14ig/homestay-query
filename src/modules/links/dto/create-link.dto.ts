@@ -30,6 +30,9 @@ class LinkDto {
   @IsNumber()
   @Optional()
   delayTime?: number;
+
+  @Optional()
+  content?: string;
 }
 
 export class CreateLinkDTO {

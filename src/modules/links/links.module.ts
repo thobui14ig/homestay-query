@@ -5,9 +5,10 @@ import { UserModule } from '../user/user.module';
 import { LinkEntity } from './entities/links.entity';
 import { LinkController } from './links.controller';
 import { LinkService } from './links.service';
+import { TiktokModule } from '../tiktok/tiktok.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LinkEntity, DelayEntity]), forwardRef(() => UserModule)],
+  imports: [TypeOrmModule.forFeature([LinkEntity, DelayEntity]), forwardRef(() => UserModule), TiktokModule],
   controllers: [LinkController],
   providers: [LinkService],
   exports: [LinkService],

@@ -32,6 +32,7 @@ import { PageEntity } from './modules/page/entities/pages.entity';
 import { VpsModule } from './modules/vps/vps.module';
 import { VpsEntity } from './modules/vps/entities/vps.entity';
 import { GatewayModules } from './infra/socket/gateway.modules';
+import { TiktokModule } from './modules/tiktok/tiktok.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { GatewayModules } from './infra/socket/gateway.modules';
     PageModule,
     EventEmitterModule.forRoot(),
     VpsModule,
+    TiktokModule,
     GatewayModules
   ],
   controllers: [AppController],

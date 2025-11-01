@@ -19,6 +19,7 @@ import { LinkService } from './links.service';
 import { BodyLinkQuery, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
 import { CheckLimitLinkUserWhenAddLinkInterceptor } from './interceptors/handle-check-limit-link-user-when-add-link.interceptor';
 import { CheckLimitLinkUserWhenUpdateMultipleLinkInterceptor } from './interceptors/handle-check-limit-link-user-when-update-multiple-link.interceptor';
+import { Public } from 'src/common/guard/guard';
 
 @Controller('links')
 export class LinkController {
@@ -93,5 +94,11 @@ export class LinkController {
   @Post('/update-link-delete')
   updateLinkDelete(@Body() body: { status: LinkStatus, linkIds: number[] }) {
     return this.linkService.updateLinkDelete(body)
+  }
+
+  @Get('tiktok/auto')
+  @Public()
+  autoGetLinkTiktok() {
+    return this.linkService.autoGetLinkTiktok();
   }
 }

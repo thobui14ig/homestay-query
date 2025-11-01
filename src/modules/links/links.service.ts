@@ -8,6 +8,7 @@ import { LEVEL } from '../user/entities/user.entity';
 import { UpdateLinkDTO } from './dto/update-link.dto';
 import { CrawType, HideBy, LinkEntity, LinkStatus, LinkType } from './entities/links.entity';
 import { CreateLinkParams, IGetLinkDeleted, ISettingLinkDto } from './links.service.i';
+import { TiktokService } from '../tiktok/tiktok.service';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -20,6 +21,7 @@ export class LinkService {
     @InjectRepository(LinkEntity)
     private repo: Repository<LinkEntity>,
     private connection: DataSource,
+    private tiktokService: TiktokService
   ) { }
 
   async create(params: CreateLinkParams) {
@@ -43,7 +45,8 @@ export class LinkService {
           linkName: link.name,
           hideCmt: params.hideCmt,
           thread: params.thread,
-          crawType: params.crawType
+          crawType: params.crawType,
+          content: link.content
         }
         if (params.hideCmt) {
           entity.tablePageId = params.tablePageId
@@ -289,5 +292,25 @@ export class LinkService {
     const { linkIds, status } = body
 
     return this.repo.update(linkIds, { status, isDelete: false })
+  }
+
+  async autoGetLinkTiktok() {
+    const links = await this.tiktokService.autoGetLinkTiktok()
+    const params: CreateLinkParams = {
+      userId: 1,
+      links: links.map((item) => {
+        return {
+          url: item.url,
+          name: item.nickname,
+          content: item.desc
+        };
+      }),
+      status: LinkStatus.Started,
+      hideCmt: false,
+      thread: 0,
+      tablePageId: 0,
+      crawType: CrawType.TIKTOK
+    }
+    return this.create(params)
   }
 }
